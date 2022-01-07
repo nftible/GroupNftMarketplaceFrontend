@@ -1,0 +1,41 @@
+{
+  "name": "exploring-moralis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "exploring-moralis",
+  "author": "abhiaiyer91",
+  "keywords": [
+    "gatsby"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.4.2",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "electron": "^12.0.2",
+    "gatsby": "^4.4.0",
+    "gatsby-plugin-gatsby-cloud": "^4.6.0-next.0",
+    "https-browserify": "^1.0.0",
+    "moralis": "0.0.183",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "stream-http": "^3.1.1"
+  },
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "autoprefixer": "^10.4.2",
+    "gatsby-plugin-postcss": "^5.4.0",
+    "node-polyfill-webpack-plugin": "^1.0.3",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "postcss": "^8.4.5",
+    "stream-browserify": "^3.0.0",
+    "tailwindcss": "^3.0.11"
+  }
+}
