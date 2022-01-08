@@ -1,107 +1,95 @@
 import React, { useState, useEffect } from "react"
-import MetaMaskOnboarding from "@metamask/onboarding"
-import { useWeb3React } from "@web3-react/core"
-import {
-  metaMask,
-  useEagerConnect,
-  getLibrary,
-  useInactiveListener,
-} from "../../web3-config"
 import { Link } from "gatsby"
-import { useAppDispatch, useAppSelector } from "../../redux/store"
-import { signedInMetaMask, logOutUser } from "../../redux/slices/entitySlice"
 import { Menu, Popover, Transition } from "@headlessui/react"
 import { Fragment, useRef } from "react"
-import { uuid } from "../../utils/services"
+import { useAuth } from "../../hooks/useAuth";
+import { useMoralis } from "../../hooks/useMoralis";
 
-declare global {
-  interface Window {
-    ethereum: any
-  }
+// declare global {
+//   interface Window {
+//     ethereum: any
+//   }
+// }
+
+enum authStateType {
+  PENDING = "PENDING",
+  SIGNED_IN = "SIGNED_IN",
+  SIGNED_OUT = "SIGNED_OUT"
 }
 
 const Header = () => {
-  const dispatch = useAppDispatch()
-  const authState = useAppSelector(state => state.entity.authState)
-  const userData = useAppSelector(state => state.entity.userData)
-  const loginIni = useAppSelector(state => state.entity.loginIni)
-  const userAcc = useAppSelector(state => state.entity.userAcc)
+  
+
+  // const installMetamask = () => {
+  //   try {
+  //     const onboarding =
+  //       typeof window !== "undefined" && new MetaMaskOnboarding()
+  //     typeof window !== "undefined" &&
+  //       onboarding &&
+  //       onboarding.startOnboarding()
+  //   } catch (err) {
+  //     setLoading(false)
+  //   }
+  // }
+
+
+
+  const { logout, currentUser,login } = useAuth();
+  const user = currentUser();
+  const userAddress = user?.get("ethAddress");
+
+  const [authState, setAuthState] = useState<authStateType>(authStateType.SIGNED_OUT);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const {
-    connector,
-    library,
-    account,
-    chainId,
-    activate,
-    deactivate,
-    active,
-    error,
-    // setError
-  } = useWeb3React()
-
-  const installMetamask = () => {
-    try {
-      const onboarding =
-        typeof window !== "undefined" && new MetaMaskOnboarding()
-      typeof window !== "undefined" &&
-        onboarding &&
-        onboarding.startOnboarding()
-    } catch (err) {
-      setLoading(false)
-    }
-  }
-
-  const connect = async () => {
-      setLoading(true)
-      await activate(metaMask, async (error) => {
-        console.log({ error });
-        // errorMessageCallback(error.message);
-      });
-      setLoading(false);
-  }
-
-  useEffect(() => {
-    if(loginIni && userAcc){
-      signin(userAcc, library)
-    }
-  }, [library])
-
-  const signin = async (address: string | null, web: any) => {
-    setLoading(true);
-    if (
-      typeof window !== "undefined" &&
-      MetaMaskOnboarding.isMetaMaskInstalled() &&
-      address
-    ) {
-      await dispatch(
-        signedInMetaMask({
-          address: address,
-          web3: web
-        })
-      )
-      setLoading(false);
-    }
-  }
-
-  const handleSubmit = async () => {
+  
+  const handleSubmitLogin = async () => {
     setLoading(true)
     try {
-      if (!account) {
-        connect()
-      } else {
-        signin(account, library);
-        setLoading(false);
-      }
-    } catch (err) {
+    await login()
+    setLoading(false)
+    } catch (e) {
+      console.log(e)
       setLoading(false)
     }
   }
 
-  const handleLogout = () => {
-    dispatch(logOutUser())
+  const handleLogout = async() => {
+        setLoading(true)
+
+    try {
+       await logout()
+       setLoading(false)
+
+    }
+    catch(e){
+      console.log(e)
+      setLoading(false)
+
+   }
   }
+
+
+
+  React.useEffect(() => {
+
+    console.log(user)
+
+    if (loading){
+      setAuthState(authStateType.PENDING)
+    }
+  
+    else {
+    if (user) {
+      setAuthState(authStateType.SIGNED_IN)
+    }
+    else{
+    setAuthState(authStateType.SIGNED_OUT)
+  }
+  
+}
+
+  }, [user,loading]);
 
   return (
     <nav className="relative my-auto bg-white shadow-sm border-b-2 border-gray-200">
@@ -180,7 +168,7 @@ const Header = () => {
           </a>
 
           {authState !== "PENDING" ? (
-            userData ? (
+            user ? (
               <>
                 <Popover className="relative flex">
                   {({ open }) => (
@@ -190,13 +178,13 @@ const Header = () => {
                 ${open ? "" : "text-opacity-90"}
                   rounded-full border-transparent inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
                       >
-                        {userData.profileImage ? (
+                        {user.profileImage ? (
                           <div className="border-transparent w-9 h-9 rounded-3xl">
                             <img
                               className="rounded-full w-full h-full object-cover"
-                              src={`${process.env.s3_url}/${
-                                userData.profileImage
-                              }?${uuid()}`}
+                              // src={`${process.env.s3_url}/${
+                              //   user.profileImage
+                              // }?${uuid()}`}
                               alt=""
                             />
                           </div>
@@ -320,7 +308,7 @@ const Header = () => {
             ) : (
               <button
                 className="capitalize p-2.5 rounded-full font-sans hover:shadow-outer font-bold text-white text-sm duration-500 ease-in-out bg-gray-900 hover:bg-black transform-gpu hover:-translate-y-1 hover:scale-110 "
-                onClick={handleSubmit}
+                onClick={handleSubmitLogin}
               >
                 connect wallet
               </button>
@@ -372,7 +360,7 @@ const Header = () => {
           Instagram
         </a>
         {authState !== "PENDING" &&
-          (userData ? (
+          (user ? (
             <button
               className="capitalize p-3 rounded-full font-sans hover:shadow-outer font-bold text-white text-sm duration-500 ease-in-out bg-gray-900 hover:bg-black transform-gpu hover:-translate-y-1 hover:scale-110 "
               onClick={handleLogout}
@@ -382,7 +370,7 @@ const Header = () => {
           ) : (
             <button
               className="capitalize p-3 rounded-full font-sans hover:shadow-outer font-bold text-white text-sm duration-500 ease-in-out bg-gray-900 hover:bg-black transform-gpu hover:-translate-y-1 hover:scale-110 "
-              onClick={handleSubmit}
+              onClick={handleSubmitLogin}
             >
               connect wallet
             </button>

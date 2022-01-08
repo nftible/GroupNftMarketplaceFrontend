@@ -1,10 +1,18 @@
-import * as React from "react"
-import Layout from "../components/Layout"
-import { Section } from "../components/section/section"
+import { Link } from "gatsby";
+import { navigate } from "gatsby-link";
+import * as React from "react";
+import { useAuth } from "../hooks/useAuth";
+import Layout from '../components/Layout'
+import Section from '../components/section'
+// markup
+const Home = () => {
 
-const IndexPage = () => (
-  <Layout authenticated={false}>
-    <Section/>
+
+  return (
+    <Layout>
+<Section/>
   </Layout>
-)
-export default IndexPage
+  );
+};
+
+export default Home;
