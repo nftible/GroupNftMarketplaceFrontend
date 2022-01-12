@@ -8,7 +8,7 @@ export function useAuth() {
       try {
         await Moralis?.Web3.authenticate({signingMessage:"hello"});
         //navigate("/");
-      } catch (e) {
+      } catch (e: any) {
         console.error(e.message, e);
       }
     },
@@ -17,7 +17,7 @@ export function useAuth() {
       try {
         await Moralis?.User.logOut();
         //navigate("/login");
-      } catch (e) {
+      } catch (e: any) {
         console.error(e.message, e);
       }
     },
